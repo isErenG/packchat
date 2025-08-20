@@ -114,32 +114,33 @@
                 padding: 1rem;
             }
             .chat {
+                flex: 1%; /* fill remaining vertical space */
                 display: flex;
-                justify-content: center;
+                flex-direction: column; /* messages above, form below */
+                height: 60vh; /* full viewport height */
             }
-
             .chat form {
                 display: flex;
                 gap: 0.5rem;
-                width: 100%;
-                max-width: 520px; /* controls form width */
-                margin: 0 auto;
+                padding: 0.5rem;
+                border-top: 1px solid var(--border);
             }
             /* Stack messages above the form, centered */
             .chat {
                 display: flex;
                 flex-direction: column; /* vertical */
-                align-items: center; /* center horizontally */
                 gap: 0.75rem;
             }
 
             /* Make each message size to its content */
             /* Message container */
             #messages {
+                flex: 1; /* take all available space */
+                overflow-y: auto; /* scroll when tall */
                 display: flex;
                 flex-direction: column;
                 gap: 0.5rem;
-                padding: 0.25rem 0;
+                padding: 0.5rem;
             }
 
             /* Base bubble styles */
@@ -171,6 +172,10 @@
                 color: var(--text);
                 align-self: flex-end; /* anchor right */
                 border-top-right-radius: 6px;
+            }
+
+            .send-button {
+                margin-left: auto;
             }
 
             /* Make inputs clearly distinct from page bg */
@@ -207,14 +212,14 @@
             <div class="pure-u-1-5"></div>
 
             <div class="pure-u-3-5">
-                <h1>packchat</h1>
-                <br />
-                <div class="chat pure-u-1">
+                <h1 style="margin-bottom: 0">packchat</h1>
+                <p style="margin-top: 0">quick speed never seen before</p>
+                <div class="chat">
                     <div id="messages"></div>
 
                     <form class="pure-form">
                         <input placeholder="Enter message..." />
-                        <button class="pure-button">Send</button>
+                        <button class="pure-button send-button">Send</button>
                     </form>
                 </div>
             </div>
