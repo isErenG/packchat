@@ -42,6 +42,5 @@ func HandleWs(w http.ResponseWriter, r *http.Request) {
 
 		NotifyClients(&message)
 		storage.AddMessage(&message)
-		fmt.Println("Received message:", message)
 	}
 }

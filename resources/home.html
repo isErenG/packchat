@@ -133,32 +133,44 @@
                 gap: 0.75rem;
             }
 
-            /* Message list area */
+            /* Make each message size to its content */
+            /* Message container */
             #messages {
-                width: 100%;
-                max-width: 520px; /* same as your form */
-                max-height: 50vh; /* scroll if tall */
-                overflow: auto;
                 display: flex;
-                flex-direction: column; /* newest at bottom; change to column-reverse for newest on top */
+                flex-direction: column;
                 gap: 0.5rem;
                 padding: 0.25rem 0;
             }
 
-            /* Message bubble */
-            .msg {
-                background: #151b2a; /* darker than panel, lighter than page */
-                border: 1px solid var(--border);
-                border-radius: 10px;
+            /* Base bubble styles */
+            .msg,
+            .msg-right {
                 padding: 0.6rem 0.75rem;
+                max-width: calc(
+                    50% - var(--gutter)
+                ); /* …never cross the midpoint */
+                border-radius: 16px;
+                line-height: 1.4;
+                white-space: pre-wrap;
+                overflow-wrap: anywhere;
+                word-break: normal;
+                max-width: 60%; /* bubble width limit */
             }
 
+            /* Left side (other users) */
+            .msg {
+                background: #151b2a;
+                color: var(--text);
+                align-self: flex-start; /* anchor left */
+                border-top-left-radius: 6px;
+            }
+
+            /* Right side (your messages) */
             .msg-right {
-                background: #151b2a; /* darker than panel, lighter than page */
-                border: 1px solid var(--border);
-                border-radius: 10px;
-                padding: 0.6rem 0.75rem;
-                text-align: right;
+                background: #223155;
+                color: var(--text);
+                align-self: flex-end; /* anchor right */
+                border-top-right-radius: 6px;
             }
 
             /* Make inputs clearly distinct from page bg */
@@ -196,7 +208,7 @@
 
             <div class="pure-u-3-5">
                 <h1>packchat</h1>
-
+                <br />
                 <div class="chat pure-u-1">
                     <div id="messages"></div>
 
@@ -217,6 +229,8 @@
     ></script>
     <script defer>
         document.addEventListener("DOMContentLoaded", () => {
+            const session_id = Math.random().toString(36).substring(2, 15);
+            console.log(session_id);
             const WS_URL = location.origin.replace(/^http/, "ws") + "/ws";
             const ws = new WebSocket(WS_URL);
             ws.binaryType = "arraybuffer";
@@ -231,10 +245,19 @@
                         new Uint8Array(ev.data),
                     ); // {A,B,C}
                     const text = esc(m.B || "");
-                    messages.insertAdjacentHTML(
-                        "beforeend",
-                        `<div class="msg-right">${text}</div>`,
-                    );
+
+                    if (session_id == m.A) {
+                        messages.insertAdjacentHTML(
+                            "beforeend",
+                            `<div class="msg-right">${text}</div>`,
+                        );
+                    } else {
+                        messages.insertAdjacentHTML(
+                            "beforeend",
+                            `<div class="msg">${text}</div>`,
+                        );
+                    }
+
                     messages.scrollTop = messages.scrollHeight;
                 } catch (e) {
                     console.error("Bad MsgPack:", e);
@@ -247,7 +270,7 @@
                 if (!text || ws.readyState !== WebSocket.OPEN) return;
                 ws.send(
                     window.msgpack.serialize({
-                        A: "browser",
+                        A: session_id,
                         B: text,
                         C: Date.now(),
                     }),
