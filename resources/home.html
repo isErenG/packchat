@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>packchat</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"
+            integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls"
+            crossorigin="anonymous"
+        />
+        <style>
+            :root {
+                color-scheme: dark; /* native dark form controls */
+                --bg: #0e0f14; /* dark grey */
+                --panel: #131826; /* card/panel */
+                --text: #e6eef5; /* primary text */
+                --muted: #9aa4b2; /* placeholders, subtle */
+                --border: #1d2330; /* borders */
+                --link: #7aa2ff; /* links */
+                --link-hover: #a6c1ff;
+            }
+
+            html,
+            body {
+                height: 100%;
+            }
+            body {
+                margin: 0;
+                background: var(--bg);
+                color: var(--text);
+                font:
+                    15px/1.45 system-ui,
+                    -apple-system,
+                    Segoe UI,
+                    Roboto,
+                    Arial,
+                    sans-serif;
+            }
+
+            a {
+                color: var(--link);
+            }
+            a:hover {
+                color: var(--link-hover);
+            }
+            hr {
+                border-color: var(--border);
+            }
+
+            /* Inputs/buttons (override Pure defaults just enough) */
+            input,
+            textarea,
+            select {
+                background: #0f1422;
+                color: var(--text);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 0.55rem 0.7rem;
+            }
+            input::placeholder,
+            textarea::placeholder {
+                color: var(--muted);
+            }
+
+            .pure-form input:not([type]) {
+                box-shadow: none;
+            }
+
+            .pure-button {
+                background: #223155;
+                color: #fff;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+            }
+            .pure-button:hover,
+            .pure-button:focus {
+                background: #2b3e6e;
+            }
+
+            /* Tables/menus if you use them */
+            .pure-table {
+                background: var(--panel);
+                color: var(--text);
+            }
+            .pure-table thead {
+                background: #0f1422;
+            }
+            .pure-table td,
+            .pure-table th {
+                border-color: var(--border);
+            }
+            .pure-menu {
+                background: var(--panel);
+            }
+            .pure-menu-link {
+                color: var(--text);
+            }
+            .pure-menu-link:hover {
+                background: #0f1422;
+            }
+
+            /* Optional helpers */
+            .wrap {
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 1rem;
+            }
+            .panel {
+                background: var(--panel);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 1rem;
+            }
+            .chat {
+                display: flex;
+                justify-content: center;
+            }
+
+            .chat form {
+                display: flex;
+                gap: 0.5rem;
+                width: 100%;
+                max-width: 520px; /* controls form width */
+                margin: 0 auto;
+            }
+            /* Stack messages above the form, centered */
+            .chat {
+                display: flex;
+                flex-direction: column; /* vertical */
+                align-items: center; /* center horizontally */
+                gap: 0.75rem;
+            }
+
+            /* Message list area */
+            #messages {
+                width: 100%;
+                max-width: 520px; /* same as your form */
+                max-height: 50vh; /* scroll if tall */
+                overflow: auto;
+                display: flex;
+                flex-direction: column; /* newest at bottom; change to column-reverse for newest on top */
+                gap: 0.5rem;
+                padding: 0.25rem 0;
+            }
+
+            /* Message bubble */
+            .msg {
+                background: #151b2a; /* darker than panel, lighter than page */
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 0.6rem 0.75rem;
+            }
+
+            .msg-right {
+                background: #151b2a; /* darker than panel, lighter than page */
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 0.6rem 0.75rem;
+                text-align: right;
+            }
+
+            /* Make inputs clearly distinct from page bg */
+            input,
+            textarea,
+            select {
+                background: #111a2b; /* more contrast than #0e0f14 */
+                color: var(--text);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 0.55rem 0.7rem;
+            }
+        </style>
+
+        <style>
+            :root {
+                font-family:
+                    system-ui,
+                    -apple-system,
+                    Segoe UI,
+                    Roboto,
+                    Arial,
+                    sans-serif;
+            }
+            .wrap {
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrap pure-g">
+            <div class="pure-u-1-5"></div>
+
+            <div class="pure-u-3-5">
+                <h1>packchat</h1>
+
+                <div class="chat pure-u-1">
+                    <div id="messages"></div>
+
+                    <form class="pure-form">
+                        <input placeholder="Enter message..." />
+                        <button class="pure-button">Send</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="pure-u-1-5"></div>
+        </div>
+    </body>
+
+    <script
+        src="https://cdn.jsdelivr.net/gh/ygoe/msgpack.js/msgpack.min.js"
+        defer
+    ></script>
+    <script defer>
+        document.addEventListener("DOMContentLoaded", () => {
+            const WS_URL = location.origin.replace(/^http/, "ws") + "/ws";
+            const ws = new WebSocket(WS_URL);
+            ws.binaryType = "arraybuffer";
+
+            const messages = document.getElementById("messages");
+            const form = document.querySelector(".chat form");
+            const input = form.querySelector("input");
+
+            ws.onmessage = (ev) => {
+                try {
+                    const m = window.msgpack.deserialize(
+                        new Uint8Array(ev.data),
+                    ); // {A,B,C}
+                    const text = esc(m.B || "");
+                    messages.insertAdjacentHTML(
+                        "beforeend",
+                        `<div class="msg-right">${text}</div>`,
+                    );
+                    messages.scrollTop = messages.scrollHeight;
+                } catch (e) {
+                    console.error("Bad MsgPack:", e);
+                }
+            };
+
+            form.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const text = input.value.trim();
+                if (!text || ws.readyState !== WebSocket.OPEN) return;
+                ws.send(
+                    window.msgpack.serialize({
+                        A: "browser",
+                        B: text,
+                        C: Date.now(),
+                    }),
+                );
+                input.value = "";
+            });
+
+            function esc(s) {
+                return String(s).replace(
+                    /[&<>"']/g,
+                    (c) =>
+                        ({
+                            "&": "&amp;",
+                            "<": "&lt;",
+                            ">": "&gt;",
+                            '"': "&quot;",
+                            "'": "&#39;",
+                        })[c],
+                );
+            }
+        });
+    </script>
+</html>
