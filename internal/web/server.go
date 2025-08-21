@@ -18,8 +18,8 @@ func SetupServer() {
 	http.HandleFunc("/", GetHome)
 	http.HandleFunc("/ws", chat.HandleWs)
 
-	log.Println("Server starting on :80...")
-	if err := http.ListenAndServe(":80", nil); err != nil {
+	log.Println("Server starting on :8080...")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}
 }
