@@ -8,11 +8,18 @@ import (
 )
 
 func SetupServer() {
+	// Set up static file server for all resources
+	resourceFS := http.FileServer(http.Dir("../resources"))
+
+	// Handle static files - CSS, JS, images, etc.
+	http.Handle("/static/", http.StripPrefix("/static/", resourceFS))
+
+	// Serve the home page
 	http.HandleFunc("/", GetHome)
 	http.HandleFunc("/ws", chat.HandleWs)
 
+	log.Println("Server starting on :80...")
 	if err := http.ListenAndServe(":80", nil); err != nil {
 		log.Fatal(err)
 	}
-
 }
