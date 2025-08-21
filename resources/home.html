@@ -4,18 +4,33 @@
         <meta charset="utf-8" />
         <title>packchat</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <!-- Preconnect to critical domains -->
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+        <link
+            rel="preconnect"
+            href="https://cdn.jsdelivr.net/gh/ygoe/"
+            crossorigin
+        />
         <link
             rel="preload"
             href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"
             as="style"
             onload="this.onload=null;this.rel='stylesheet'"
         />
-        <noscript
-            ><link
+        <link
+            rel="preload"
+            href="/static/css/styles.css"
+            as="style"
+            onload="this.onload=null;this.rel='stylesheet'"
+        />
+        <noscript>
+            <link
                 rel="stylesheet"
                 href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"
-        /></noscript>
-        <link rel="stylesheet" href="/static/css/styles.css" />
+            />
+            <link rel="stylesheet" href="/static/css/styles.css" />
+        </noscript>
     </head>
     <body>
         <div class="wrap pure-g">
@@ -41,6 +56,6 @@
     <script
         src="https://cdn.jsdelivr.net/gh/ygoe/msgpack.js/msgpack.min.js"
         defer
+        fetchpriority="high"
     ></script>
-    <script src="/static/js/messaging.js" defer></script>
 </html>
