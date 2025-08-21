@@ -124,7 +124,7 @@
                     const m = window.msgpack.deserialize(
                         new Uint8Array(ev.data),
                     );
-
+                    console.log(m);
                     if (!firstMessageRecieved) {
                         firstMessageRecieved = true;
                         ipAddress = m.A.A;
@@ -192,7 +192,7 @@
                 ws.send(
                     window.msgpack.serialize({
                         A: { A: ipAddress, B: newRoom },
-                        B: { A: "", B: Date.now() },
+                        B: { A: "", B: 0 },
                     }),
                 );
                 updateRoomDisplay(newRoom);
@@ -206,7 +206,7 @@
                 ws.send(
                     window.msgpack.serialize({
                         A: { A: ipAddress, B: "global" },
-                        B: { A: "", B: Date.now() },
+                        B: { A: "", B: 0 },
                     }),
                 );
                 updateRoomDisplay("global");
