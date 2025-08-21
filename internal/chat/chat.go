@@ -1,6 +1,8 @@
 package chat
 
 import (
+	"strings"
+
 	"github.com/gorilla/websocket"
 	"github.com/vmihailenco/msgpack/v5"
 	"main.go/internal/storage"
@@ -15,7 +17,7 @@ func Init() {
 
 func SendFirstConnectionMessage(user *websocket.Conn) {
 	info := types.UserInfo{
-		A: user.RemoteAddr().String(),
+		A: strings.Split(user.RemoteAddr().String(), ":")[0],
 		B: "global",
 	}
 
