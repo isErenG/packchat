@@ -39,24 +39,30 @@
 
             <div class="pure-u-3-5">
                 <h1 class="no-margin-bottom">packchat</h1>
-                <p class="no-margin-top">quick speed never seen before</p>
+                <p class="no-margin-top">speed never seen before (cap)</p>
 
                 <div id="room-controls">
-                    <button
-                        id="global-room-btn"
-                        class="pure-button active-room"
-                    >
-                        Global
-                    </button>
-                    <form id="room-form" class="pure-form">
-                        <input
-                            id="room-input"
-                            placeholder="Enter room code..."
-                        />
-                        <button type="submit" class="pure-button">
-                            Join Room
+                    <div class="room-controls-top">
+                        <button
+                            id="global-room-btn"
+                            class="pure-button active-room"
+                        >
+                            Global
                         </button>
-                    </form>
+                        <form id="room-form" class="pure-form">
+                            <input
+                                id="room-input"
+                                placeholder="Room code..."
+                                class="compact-input"
+                            />
+                            <button
+                                type="submit"
+                                class="pure-button compact-button"
+                            >
+                                Join
+                            </button>
+                        </form>
+                    </div>
                     <div id="current-room">
                         Current Room: <span>global</span>
                     </div>
@@ -186,6 +192,7 @@
                 ws.send(
                     window.msgpack.serialize({
                         A: { A: ipAddress, B: newRoom },
+                        B: { A: "", B: Date.now() },
                     }),
                 );
                 updateRoomDisplay(newRoom);
@@ -199,6 +206,7 @@
                 ws.send(
                     window.msgpack.serialize({
                         A: { A: ipAddress, B: "global" },
+                        B: { A: "", B: Date.now() },
                     }),
                 );
                 updateRoomDisplay("global");

@@ -197,6 +197,11 @@ textarea::placeholder {
 #room-controls {
     margin-bottom: 1rem;
     display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.room-controls-top {
+    display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
@@ -206,9 +211,18 @@ textarea::placeholder {
     gap: 0.5rem;
 }
 #current-room {
-    margin-left: auto;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: var(--muted);
+    text-align: left;
+}
+.compact-input {
+    padding: 0.35rem 0.5rem !important;
+    font-size: 0.9rem;
+    width: 120px;
+}
+.compact-button {
+    padding: 0.35rem 0.7rem !important;
+    font-size: 0.9rem;
 }
 .active-room {
     background: #2b3e6e;
