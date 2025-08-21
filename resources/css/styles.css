@@ -101,10 +101,11 @@ textarea::placeholder {
     padding: 1rem;
 }
 .chat {
-    flex: 1%; /* fill remaining vertical space */
+    flex: 1%;
     display: flex;
-    flex-direction: column; /* messages above, form below */
-    height: 60vh; /* full viewport height */
+    flex-direction: column;
+    height: 60vh;
+    min-height: 400px;
     gap: 0.75rem;
 }
 .chat form {
@@ -117,19 +118,24 @@ textarea::placeholder {
 /* Make each message size to its content */
 /* Message container */
 #messages {
-    flex: 1; /* take all available space */
-    overflow-y: auto; /* scroll when tall */
+    flex: 1;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     padding: 0.5rem;
+    min-height: 300px;
+    contain: content;
 }
 
 /* Message container for bubble and timestamp */
 .msg-container {
     display: flex;
     flex-direction: column;
-    width: 60%; /* Ensure container takes full available width */
+    max-width: 60%;
+    width: 100%;
+    contain: layout;
+    margin-bottom: 0.5rem;
 }
 
 .msg-container.right {
@@ -151,8 +157,10 @@ textarea::placeholder {
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     word-break: normal;
-    width: fit-content; /* Make bubble fit content, not expand full width */
-    max-width: 100%; /* Ensure it doesn't overflow container */
+    width: fit-content;
+    max-width: 100%;
+    contain: content;
+    min-height: 1.4em;
 }
 
 /* Left side (other users) */
@@ -199,6 +207,9 @@ textarea::placeholder {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    height: auto;
+    min-height: 4rem; /* Reserve space for room controls */
+    contain: layout;
 }
 .room-controls-top {
     display: flex;
@@ -219,10 +230,14 @@ textarea::placeholder {
     padding: 0.35rem 0.5rem !important;
     font-size: 0.9rem;
     width: 120px;
+    height: 2.2rem; /* Fixed height to prevent shifts */
+    box-sizing: border-box; /* Include padding in the element's size */
 }
 .compact-button {
     padding: 0.35rem 0.7rem !important;
     font-size: 0.9rem;
+    height: 2.2rem; /* Fixed height to prevent shifts */
+    box-sizing: border-box; /* Include padding in the element's size */
 }
 .active-room {
     background: #2b3e6e;
@@ -234,4 +249,20 @@ textarea::placeholder {
     padding: 1rem;
     text-align: center;
     align-self: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Ensure content doesn't cause layout shifts when loading fonts */
+html {
+    font-display: swap;
+}
+
+/* Force border-box sizing for all elements */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
