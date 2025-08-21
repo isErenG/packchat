@@ -12,6 +12,7 @@
             href="https://cdn.jsdelivr.net/gh/ygoe/"
             crossorigin
         />
+
         <link
             rel="preload"
             href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"
@@ -37,12 +38,34 @@
             <div class="pure-u-1-5"></div>
 
             <div class="pure-u-3-5">
-                <h1 style="margin-bottom: 0">packchat</h1>
-                <p style="margin-top: 0">quick speed never seen before</p>
+                <h1 class="no-margin-bottom">packchat</h1>
+                <p class="no-margin-top">quick speed never seen before</p>
+
+                <div id="room-controls">
+                    <button
+                        id="global-room-btn"
+                        class="pure-button active-room"
+                    >
+                        Global
+                    </button>
+                    <form id="room-form" class="pure-form">
+                        <input
+                            id="room-input"
+                            placeholder="Enter room code..."
+                        />
+                        <button type="submit" class="pure-button">
+                            Join Room
+                        </button>
+                    </form>
+                    <div id="current-room">
+                        Current Room: <span>global</span>
+                    </div>
+                </div>
+
                 <div class="chat">
                     <div id="messages"></div>
 
-                    <form class="pure-form">
+                    <form class="pure-form" id="chat-form">
                         <input placeholder="Enter message..." />
                         <button class="pure-button send-button">Send</button>
                     </form>
@@ -58,6 +81,143 @@
         defer
         fetchpriority="high"
     ></script>
+    <script defer>
+        document.addEventListener("DOMContentLoaded", () => {
+            let firstMessageRecieved = false;
+            let room = "global";
+            let ipAddress = "";
 
-    <script src="/static/js/main.js" defer fetchpriority="high"></script>
+            // DOM elements for room handling
+            const roomDisplay = document.querySelector("#current-room span");
+            const globalRoomBtn = document.getElementById("global-room-btn");
+            const roomForm = document.getElementById("room-form");
+            const roomInput = document.getElementById("room-input");
+            const WS_URL = location.origin.replace(/^http/, "ws") + "/ws";
+            const ws = new WebSocket(WS_URL);
+            ws.binaryType = "arraybuffer";
+
+            const messages = document.getElementById("messages");
+            const chatForm = document.getElementById("chat-form");
+            const chatInput = chatForm.querySelector("input");
+
+            // Function to update room display
+            function updateRoomDisplay(newRoom) {
+                room = newRoom;
+                roomDisplay.textContent = newRoom;
+                messages.innerHTML = "";
+
+                if (newRoom === "global") {
+                    globalRoomBtn.classList.add("active-room");
+                } else {
+                    globalRoomBtn.classList.remove("active-room");
+                }
+            }
+
+            ws.onmessage = (ev) => {
+                try {
+                    const m = window.msgpack.deserialize(
+                        new Uint8Array(ev.data),
+                    );
+
+                    if (!firstMessageRecieved) {
+                        firstMessageRecieved = true;
+                        ipAddress = m.A.A;
+                        room = m.A.B;
+                        updateRoomDisplay(room);
+                        return;
+                    }
+
+                    const timestamp = new Date(
+                        m.B.B || Date.now(),
+                    ).toLocaleTimeString();
+
+                    // Only show messages for the current room
+                    if (m.A.B === room) {
+                        // Skip empty messages (used for room changes)
+                        if (m.B.A) {
+                            // Escape HTML to prevent XSS
+                            const escapedText = escapeHtml(m.B.A);
+
+                            if (ipAddress == m.A.A) {
+                                messages.insertAdjacentHTML(
+                                    "beforeend",
+                                    `<div class="msg-container right">
+                                        <div class="msg-right">${escapedText}</div>
+                                        <div class="timestamp">${timestamp}</div>
+                                    </div>`,
+                                );
+                            } else {
+                                messages.insertAdjacentHTML(
+                                    "beforeend",
+                                    `<div class="msg-container left">
+                                        <div class="msg">${escapedText}</div>
+                                        <div class="timestamp">${timestamp}</div>
+                                    </div>`,
+                                );
+                            }
+                        }
+                    }
+
+                    messages.scrollTop = messages.scrollHeight;
+                } catch (e) {
+                    console.error("Bad MsgPack:", e);
+                }
+            };
+
+            chatForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const text = chatInput.value.trim();
+                if (!text || ws.readyState !== WebSocket.OPEN) return;
+                ws.send(
+                    window.msgpack.serialize({
+                        A: { A: ipAddress, B: room },
+                        B: { A: text, B: Date.now() },
+                    }),
+                );
+                chatInput.value = "";
+            });
+
+            // Handle room form submission
+            roomForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const newRoom = roomInput.value.trim().toLowerCase();
+                if (!newRoom || ws.readyState !== WebSocket.OPEN) return;
+
+                ws.send(
+                    window.msgpack.serialize({
+                        A: { A: ipAddress, B: newRoom },
+                    }),
+                );
+                updateRoomDisplay(newRoom);
+                roomInput.value = "";
+            });
+
+            // Global room button
+            globalRoomBtn.addEventListener("click", () => {
+                if (room === "global") return;
+
+                ws.send(
+                    window.msgpack.serialize({
+                        A: { A: ipAddress, B: "global" },
+                    }),
+                );
+                updateRoomDisplay("global");
+            });
+
+            // HTML escaping helper function
+            function escapeHtml(text) {
+                return String(text)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            // WebSocket connection handlers
+            ws.onopen = () => console.log("Connected to chat server");
+            ws.onclose = () => console.log("Disconnected from chat server");
+            ws.onerror = (error) => console.error("WebSocket error:", error);
+        });
+    </script>
 </html>

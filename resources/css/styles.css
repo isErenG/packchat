@@ -40,7 +40,7 @@ hr {
 input,
 textarea,
 select {
-    background: #0f1422;
+    background: #111a2b; /* more contrast than #0e0f14 */
     color: var(--text);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -105,18 +105,13 @@ textarea::placeholder {
     display: flex;
     flex-direction: column; /* messages above, form below */
     height: 60vh; /* full viewport height */
+    gap: 0.75rem;
 }
 .chat form {
     display: flex;
     gap: 0.5rem;
     padding: 0.5rem;
     border-top: 1px solid var(--border);
-}
-/* Stack messages above the form, centered */
-.chat {
-    display: flex;
-    flex-direction: column; /* vertical */
-    gap: 0.75rem;
 }
 
 /* Make each message size to its content */
@@ -130,17 +125,34 @@ textarea::placeholder {
     padding: 0.5rem;
 }
 
+/* Message container for bubble and timestamp */
+.msg-container {
+    display: flex;
+    flex-direction: column;
+    width: 60%; /* Ensure container takes full available width */
+}
+
+.msg-container.right {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.msg-container.left {
+    align-self: flex-start;
+    align-items: flex-start;
+}
+
 /* Base bubble styles */
 .msg,
 .msg-right {
     padding: 0.6rem 0.75rem;
-    max-width: calc(50% - var(--gutter)); /* …never cross the midpoint */
     border-radius: 16px;
     line-height: 1.4;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     word-break: normal;
-    max-width: 60%; /* bubble width limit */
+    width: fit-content; /* Make bubble fit content, not expand full width */
+    max-width: 100%; /* Ensure it doesn't overflow container */
 }
 
 /* Left side (other users) */
@@ -157,34 +169,55 @@ textarea::placeholder {
     color: var(--text);
     align-self: flex-end; /* anchor right */
     border-top-right-radius: 6px;
+    margin-left: auto; /* Force alignment to right side */
 }
 
 .send-button {
     margin-left: auto;
 }
 
-/* Make inputs clearly distinct from page bg */
-input,
-textarea,
-select {
-    background: #111a2b; /* more contrast than #0e0f14 */
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.55rem 0.7rem;
+/* Timestamp styling */
+.timestamp {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.1rem;
+    opacity: 0.7;
 }
 
-:root {
-    font-family:
-        system-ui,
-        -apple-system,
-        Segoe UI,
-        Roboto,
-        Arial,
-        sans-serif;
+/* Heading margins */
+.no-margin-bottom {
+    margin-bottom: 0;
 }
-.wrap {
-    max-width: 900px;
-    margin: 0 auto;
+
+.no-margin-top {
+    margin-top: 0;
+}
+
+/* Room controls styling */
+#room-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+#room-form {
+    display: flex;
+    gap: 0.5rem;
+}
+#current-room {
+    margin-left: auto;
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+.active-room {
+    background: #2b3e6e;
+}
+#messages:empty:before {
+    content: "No messages yet. Start chatting!";
+    color: var(--muted);
+    font-style: italic;
     padding: 1rem;
+    text-align: center;
+    align-self: center;
 }

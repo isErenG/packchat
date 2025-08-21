@@ -22,9 +22,11 @@ func HandleWs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	SendPreviousMessages(conn)
+	SendFirstConnectionMessage(conn)
 
-	clients = append(clients, conn)
+	SendPreviousMessages("global", conn)
+
+	clients["global"] = append(clients["global"], conn)
 
 	for {
 		_, msg, err := conn.ReadMessage()
@@ -40,7 +42,12 @@ func HandleWs(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
+		if message.B.B == 0 {
+			ChangeRoom(conn, "global", message.A.B)
+		}
+
 		NotifyClients(&message)
-		storage.AddMessage(&message)
+		storage.AddMessage(message.A.B, &message)
+
 	}
 }

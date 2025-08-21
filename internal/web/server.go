@@ -5,9 +5,14 @@ import (
 	"net/http"
 
 	"main.go/internal/chat"
+	"main.go/internal/storage"
 )
 
 func SetupServer() {
+
+	chat.Init()
+	storage.Init()
+
 	// Set up static file server for all resources
 	resourceFS := http.FileServer(http.Dir("../resources"))
 
